@@ -1,13 +1,17 @@
+import os
+
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.core.pipeline import ExtractionPipeline
 from app.schemas.extraction import ExtractionResponse
-from app.services.llm_service import HeuristicLLMEngine
-from app.services.ocr_service import BasicOCREngine
+from app.services.llm_service import HeuristicLLMEngine, OpenAILLMEngine
+from app.services.ocr_service import BasicOCREngine, TesseractOCREngine
 
 router = APIRouter(prefix="/api", tags=["extractor"])
 
-pipeline = ExtractionPipeline(ocr_engine=BasicOCREngine(), llm_engine=HeuristicLLMEngine())
+ocr_engine = TesseractOCREngine() if os.getenv("USE_TESSERACT", "false").lower() == "true" else BasicOCREngine()
+llm_engine = OpenAILLMEngine() if os.getenv("OPENAI_API_KEY") else HeuristicLLMEngine()
+pipeline = ExtractionPipeline(ocr_engine=ocr_engine, llm_engine=llm_engine)
 
 
 @router.get("/health")

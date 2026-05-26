@@ -1,9 +1,43 @@
+from __future__ import annotations
+
+import json
+import os
 import re
+
+from openai import OpenAI
+
+
+class OpenAILLMEngine:
+    def __init__(self) -> None:
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise RuntimeError("OPENAI_API_KEY is required for OpenAILLMEngine")
+
+        self.client = OpenAI(api_key=api_key)
+        self.model = os.getenv("OPENAI_MODEL", "gpt-4o")
+
+    def map_to_schema(self, raw_text: str) -> dict:
+        prompt = (
+            "Extract invoice fields from this OCR text. "
+            "Return strict JSON with keys vendor_name, invoice_number, total_amount, currency. "
+            "No extra keys.\n\n"
+            f"OCR_TEXT:\n{raw_text}"
+        )
+
+        completion = self.client.chat.completions.create(
+            model=self.model,
+            temperature=0,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": "You are an invoice extraction engine."},
+                {"role": "user", "content": prompt},
+            ],
+        )
+
+        return json.loads(completion.choices[0].message.content or "{}")
 
 
 class HeuristicLLMEngine:
-    """Deterministic LLM-like mapper for local/offline demo."""
-
     def map_to_schema(self, raw_text: str) -> dict:
         normalized_text = raw_text.replace("\\n", "\n")
 
