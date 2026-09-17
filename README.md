@@ -6,7 +6,7 @@ An Applied AI API built with Python and FastAPI that processes unstructured docu
 In modern EnergyTech and FinTech, parsing unstructured invoices and technical documents is a manual, error-prone process. Traditional regex-based parsers fail when document layouts change.
 
 ## The Solution
-This project implements a robust, AI-augmented extraction pipeline. It combines traditional OCR with the reasoning capabilities of LLMs to dynamically map unstructured text into strictly typed JSON schemas, achieving >90% accuracy regardless of layout variations.
+This project implements an AI-augmented extraction pipeline. It combines traditional OCR with the reasoning capabilities of LLMs to dynamically map unstructured text into strictly typed JSON schemas, validated with Pydantic before they reach the caller. There is no accuracy benchmark published for this repository yet — the design goal is layout-independent extraction, not a measured accuracy number.
 
 ## Architecture
 
